@@ -1,0 +1,39 @@
+# Environments
+.env
+.env.*
+!.env.template
+!.env.example
+.venv/
+venv/
+env/
+ENV/
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+pip-selfcheck.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Database
+yt_stats.db
+*.sqlite3
+*.db
+*.db-journal
+
+# OS generated files
+.DS_Store
+Thumbs.db
+~$*
+
+# Misc
+.idea/
+.vscode/
+*.log
