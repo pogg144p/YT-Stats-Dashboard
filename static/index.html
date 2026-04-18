@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Intelligence Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="blob-bg"></div>
+    <div class="container">
+        <header>
+            <h1>YouTube Content Intelligence</h1>
+            <p>Analyze and compare channels using advanced AI-driven metrics.</p>
+        </header>
+
+        <main>
+            <section class="search-section glass-panel">
+                <form id="analyze-form">
+                    <div class="input-group">
+                        <label for="channel1">Primary Channel URL / Handle / ID *</label>
+                        <input type="text" id="channel1" placeholder="Enter Channel Link, Channel Handle or Channel Id" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="channel2">Secondary Channel URL / Handle / ID (Optional)</label>
+                        <input type="text" id="channel2" placeholder="Leave blank to analyze only one">
+                    </div>
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span class="btn-text">Generate Insights</span>
+                        <div class="loader hidden"></div>
+                    </button>
+                    <div id="error-message" class="error-message hidden"></div>
+                </form>
+            </section>
+
+            <section id="results-container" class="results-container hidden">
+                <!-- Javascript will inject data here -->
+            </section>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
