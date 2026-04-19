@@ -212,6 +212,48 @@ header p {
     color: var(--text-primary);
 }
 
+.refresh-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.btn-refresh {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+    background: rgba(124, 58, 237, 0.2);
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.btn-refresh .icon {
+    font-size: 1.1rem;
+    transition: transform 0.5s ease;
+}
+
+.btn-refresh:active .icon {
+    transform: rotate(180deg);
+}
+
+.btn-refresh.loading .icon {
+    animation: spin 1s linear infinite;
+}
+
 .comparison-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -233,4 +275,447 @@ header p {
     margin-top: 2rem;
     font-size: 1.2rem;
     font-weight: 600;
+}
+
+/* ─── Engagement Rate: Info Button ─── */
+.label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.btn-info {
+    background: rgba(124, 58, 237, 0.25);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    color: var(--accent-purple);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.btn-info:hover {
+    background: rgba(124, 58, 237, 0.5);
+    border-color: var(--accent-purple);
+    color: #fff;
+    transform: scale(1.15);
+}
+
+/* ─── Formula Modal ─── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+.modal-overlay.hidden {
+    display: none !important;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.modal-box {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 18px;
+    padding: 2rem 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.25s ease;
+    position: relative;
+}
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+.modal-box h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    background: linear-gradient(135deg, #a78bfa, var(--accent-red));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.formula-block {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+}
+.formula-block .formula-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+.formula-block .highlight {
+    color: #a78bfa;
+    font-weight: 700;
+}
+.modal-terms {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+.modal-terms li {
+    list-style: none;
+    padding: 0.15rem 0;
+}
+.modal-terms li::before {
+    content: '→ ';
+    color: var(--accent-purple);
+    font-weight: 700;
+}
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text-primary); }
+
+/* ─── Upload Hours Bar Chart ─── */
+.hour-chart-wrap {
+    margin-top: 0.75rem;
+}
+.hour-chart-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+.hour-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 50px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124,58,237,0.3) transparent;
+}
+.hour-bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+.hour-bar {
+    width: 14px;
+    border-radius: 3px 3px 0 0;
+    background: rgba(124, 58, 237, 0.35);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    transition: background 0.3s, transform 0.2s;
+    cursor: default;
+    min-height: 3px;
+}
+.hour-bar.best {
+    background: linear-gradient(to top, #7c3aed, #a78bfa);
+    border-color: #a78bfa;
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+}
+.hour-bar:hover {
+    background: rgba(167, 139, 250, 0.6);
+    transform: scaleY(1.08);
+}
+.hour-bar.best:hover {
+    background: linear-gradient(to top, #6d28d9, #c4b5fd);
+}
+.hour-label {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.hour-label.best { color: #a78bfa; font-weight: 700; }
+
+/* ─── Upload Hours Modal — Wide Variant ─── */
+.modal-box--wide {
+    max-width: 760px;
+}
+
+/* ─── Full-size 24-bar Chart ─── */
+.fhb-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+.fhb-best-badge {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(255, 51, 102, 0.1));
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: #a78bfa;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.fhb-chart-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
+    padding-bottom: 4px;
+}
+.fhb-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 150px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 520px;
+    padding: 0 2px;
+}
+.fhb-bar {
+    flex: 1;
+    min-width: 16px;
+    border-radius: 4px 4px 0 0;
+    background: rgba(124, 58, 237, 0.3);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-bottom: none;
+    transition: height 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: default;
+}
+.fhb-bar:not(.fhb-bar--empty):hover {
+    background: rgba(167, 139, 250, 0.55);
+}
+.fhb-bar--best {
+    background: linear-gradient(to top, #7c3aed, #a78bfa);
+    border-color: #a78bfa;
+    box-shadow: 0 0 14px rgba(167, 139, 250, 0.55);
+}
+.fhb-bar--best:hover {
+    background: linear-gradient(to top, #6d28d9, #c4b5fd) !important;
+}
+.fhb-bar--empty {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    height: 2px !important;
+    border-radius: 2px;
+    box-shadow: none !important;
+}
+.fhb-labels {
+    display: flex;
+    gap: 3px;
+    padding: 5px 2px 0;
+    min-width: 520px;
+}
+.fhb-labels span {
+    flex: 1;
+    min-width: 16px;
+    text-align: center;
+    font-size: 0.57rem;
+    color: var(--text-secondary);
+}
+.fhb-labels span.best {
+    color: #a78bfa;
+    font-weight: 700;
+}
+.fhb-x-label {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    letter-spacing: 0.4px;
+}
+.fhb-note {
+    font-size: 0.71rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+}
+.fhb-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    font-size: 0.9rem;
+}
+
+/* ─── Clickable Upload Hour Card ─── */
+.card-upload-hours {
+    cursor: pointer;
+}
+.card-upload-hours:hover {
+    border-color: rgba(124, 58, 237, 0.5) !important;
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.2),
+                0 8px 24px rgba(124, 58, 237, 0.15) !important;
+}
+.card-cta {
+    margin-top: 0.75rem;
+    font-size: 0.72rem;
+    color: var(--accent-purple);
+    opacity: 0.6;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    transition: opacity 0.2s;
+}
+.card-upload-hours:hover .card-cta {
+    opacity: 1;
+}
+
+/* ─── Interactive Detail Panel (for Upload Hour Modal) ─── */
+.fhb-hint {
+    color: var(--accent-purple);
+    font-weight: 700;
+    font-size: 0.75rem;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.fhb-bar.fhb-bar--selected {
+    background: #fff !important;
+    border-color: #fff !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+.fhb-detail-panel {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+    display: none;
+}
+.fhb-detail-panel--visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fhb-detail-inner {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.fhb-detail-hour {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.fhb-detail-clock {
+    font-size: 1.5rem;
+}
+.fhb-detail-time {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.fhb-detail-perf {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Performance Badge Colors */
+.fhb-detail-perf--peak      { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid #a78bfa; }
+.fhb-detail-perf--excellent { background: rgba(34, 197, 94, 0.2);   color: #4ade80; border: 1px solid #22c55e; }
+.fhb-detail-perf--good      { background: rgba(59, 130, 246, 0.2);  color: #60a5fa; border: 1px solid #3b82f6; }
+.fhb-detail-perf--below     { background: rgba(234, 179, 8, 0.2);   color: #facc15; border: 1px solid #eab308; }
+.fhb-detail-perf--low       { background: rgba(239, 68, 68, 0.2);   color: #f87171; border: 1px solid #ef4444; }
+.fhb-detail-perf--neutral   { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid #64748b; }
+
+.fhb-detail-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.fhb-detail-stat {
+    text-align: center;
+}
+.fhb-detail-stat-val {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 2px;
+}
+.fhb-detail-stat-lbl {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Progress Bar Graph */
+.fhb-detail-bar-wrap {
+    margin-bottom: 1rem;
+}
+.fhb-detail-bar-track {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+.fhb-detail-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fhb-detail-bar-fill--peak      { background: #a78bfa; box-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+.fhb-detail-bar-fill--excellent { background: #4ade80; }
+.fhb-detail-bar-fill--good      { background: #60a5fa; }
+.fhb-detail-bar-fill--below     { background: #facc15; }
+.fhb-detail-bar-fill--low       { background: #f87171; }
+.fhb-detail-bar-fill--neutral   { background: #64748b; }
+
+.fhb-detail-bar-label {
+    display: block;
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.fhb-detail-tip {
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+    padding: 0.75rem;
+    background: rgba(124, 58, 237, 0.1);
+    border-left: 3px solid var(--accent-purple);
+    border-radius: 4px;
 }

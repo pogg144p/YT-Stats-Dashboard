@@ -40,5 +40,34 @@
         </main>
     </div>
     <script src="/static/script.js"></script>
+
+    <!-- Upload Hours Performance Modal -->
+    <div id="hours-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="hours-modal-title">
+        <div class="modal-box modal-box--wide">
+            <button class="modal-close" id="hours-modal-close" aria-label="Close">&times;</button>
+            <h3 id="hours-modal-title">📊 Upload Hour Performance</h3>
+            <div id="hours-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Engagement Rate Formula Modal -->
+    <div id="formula-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-box">
+            <button class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
+            <h3 id="modal-title">📐 Engagement Rate Formula</h3>
+            <div class="formula-block">
+                <div class="formula-title">Formula Used</div>
+                ER (%) = <span class="highlight">( Likes + Comments )</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;─────────────────────── × 100<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">Total Views (recent videos)</span>
+            </div>
+            <ul class="modal-terms">
+                <li><strong>Likes</strong> — sum of likes across the last 50 videos</li>
+                <li><strong>Comments</strong> — sum of comments across the last 50 videos</li>
+                <li><strong>Total Views</strong> — sum of views across the same video sample</li>
+                <li><strong>Sample Size</strong> — up to 50 most recent uploads</li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

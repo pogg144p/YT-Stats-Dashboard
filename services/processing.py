@@ -1,9 +1,12 @@
 from typing import List, Dict, Any
 from datetime import datetime
 
-def calculate_channel_metrics(channel_data: dict, recent_videos: List[dict]) -> Dict[str, Any]:
+
+def calculate_channel_metrics(
+    channel_data: dict, recent_videos: List[dict]
+) -> Dict[str, Any]:
     """
-    Computes derived metrics for a YouTube channel based on raw data using pure Python.
+    Computes derived metrics for a YouTube channel based on raw data.
     """
     if not channel_data:
         return {}
@@ -38,8 +41,8 @@ def calculate_channel_metrics(channel_data: dict, recent_videos: List[dict]) -> 
         total_recent_comments += comments
 
         # Parse ISO 8601 date (e.g., 2024-04-16T15:30:00Z)
-        pub_str = v["snippet"]["publishedAt"].replace('Z', '+00:00')
-        dt = datetime.fromisoformat(pub_str)
+        pub_str = v["snippet"]["publishedAt"]
+        dt = datetime.fromisoformat(pub_str.replace("Z", "+00:00"))
         published_dates.append(dt)
 
         hour = dt.hour
@@ -49,7 +52,9 @@ def calculate_channel_metrics(channel_data: dict, recent_videos: List[dict]) -> 
 
     # Engagement Rate
     if total_recent_views > 0:
-        overall_engagement = ((total_recent_likes + total_recent_comments) / total_recent_views) * 100
+        overall_engagement = (
+            (total_recent_likes + total_recent_comments) / total_recent_views
+        ) * 100
     else:
         overall_engagement = 0.0
 
@@ -66,8 +71,16 @@ def calculate_channel_metrics(channel_data: dict, recent_videos: List[dict]) -> 
     avg_days_between_posts = None
     if len(published_dates) > 1:
         published_dates.sort(reverse=True)
-        date_diffs = [(published_dates[i] - published_dates[i+1]).total_seconds() / 86400.0 for i in range(len(published_dates)-1)]
+        date_diffs = [
+            (published_dates[i] - published_dates[i+1]).total_seconds() / 86400
+            for i in range(len(published_dates)-1)
+        ]
         avg_days_between_posts = round(sum(date_diffs) / len(date_diffs), 1)
+
+    # Build upload hours history: {hour: avg_views}
+    upload_hours_history = {}
+    for hour, views_list in upload_hours.items():
+        upload_hours_history[hour] = round(sum(views_list) / len(views_list))
 
     return {
         "channel_title": channel_data.get("snippet", {}).get("title"),
@@ -77,5 +90,6 @@ def calculate_channel_metrics(channel_data: dict, recent_videos: List[dict]) -> 
         "average_engagement_rate_percent": round(overall_engagement, 2),
         "best_upload_hour_utc": best_hour,
         "avg_days_between_uploads": avg_days_between_posts,
-        "recent_video_sample_size": len(recent_videos)
+        "recent_video_sample_size": len(recent_videos),
+        "upload_hours_history": upload_hours_history
     }
