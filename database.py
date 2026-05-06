@@ -6,8 +6,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use SQLite for this project (simple and no external DB needed)
-DATABASE_URL = "sqlite:///./yt_stats.db"
+# On Render, the working directory is read-only — use /tmp for SQLite.
+# Locally on Windows, fall back to the project directory.
+_default_db = (
+    "sqlite:////tmp/yt_stats.db"
+    if os.name != "nt"  # nt = Windows
+    else "sqlite:///./yt_stats.db"
+)
+DATABASE_URL = os.environ.get("DATABASE_URL", _default_db)
 
 engine = create_engine(
     DATABASE_URL,
