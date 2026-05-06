@@ -719,3 +719,21 @@ header p {
     border-left: 3px solid var(--accent-purple);
     border-radius: 4px;
 }
+
+.warning-notice {
+    background: rgba(234, 179, 8, 0.1);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #facc15;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+.warning-notice .icon {
+    font-size: 1.2rem;
+}

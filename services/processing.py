@@ -1,13 +1,66 @@
+"""YouTube analytics processing and metrics calculation."""
+import logging
 from typing import List, Dict, Any
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+
+def _extract_video_stats(video: dict) -> tuple[int, int, int, datetime]:
+    """Extract and parse video statistics."""
+    stats = video.get("statistics", {})
+    views = int(stats.get("viewCount", 0))
+    likes = int(stats.get("likeCount", 0))
+    comments = int(stats.get("commentCount", 0))
+    
+    pub_str = video["snippet"]["publishedAt"]
+    published_date = datetime.fromisoformat(pub_str.replace("Z", "+00:00"))
+    
+    return views, likes, comments, published_date
+
+
+def _calculate_engagement_rate(total_views: int, total_engagement: int) -> float:
+    """Calculate engagement rate as percentage."""
+    if total_views <= 0:
+        return 0.0
+    return round(((total_engagement) / total_views) * 100, 2)
+
+
+def _find_best_upload_hour(upload_hours: Dict[int, List[int]]) -> int | None:
+    """Find the hour with highest average views."""
+    if not upload_hours:
+        return None
+    
+    best_hour = None
+    max_avg_views = -1
+    
+    for hour, views_list in upload_hours.items():
+        avg_views = sum(views_list) / len(views_list)
+        if avg_views > max_avg_views:
+            max_avg_views = avg_views
+            best_hour = hour
+    
+    return best_hour
+
+
+def _calculate_posting_frequency(published_dates: List[datetime]) -> float | None:
+    """Calculate average days between posts."""
+    if len(published_dates) <= 1:
+        return None
+    
+    published_dates.sort(reverse=True)
+    date_diffs = [
+        (published_dates[i] - published_dates[i+1]).total_seconds() / 86400
+        for i in range(len(published_dates) - 1)
+    ]
+    
+    return round(sum(date_diffs) / len(date_diffs), 1)
 
 
 def calculate_channel_metrics(
     channel_data: dict, recent_videos: List[dict]
 ) -> Dict[str, Any]:
-    """
-    Computes derived metrics for a YouTube channel based on raw data.
-    """
+    """Compute derived metrics for a YouTube channel based on raw data."""
     if not channel_data:
         return {}
 
@@ -15,81 +68,62 @@ def calculate_channel_metrics(
     subscribers = int(stats.get("subscriberCount", 0))
     total_views = int(stats.get("viewCount", 0))
     video_count = int(stats.get("videoCount", 0))
+    channel_title = channel_data.get("snippet", {}).get("title")
 
     if not recent_videos:
         return {
+            "channel_title": channel_title,
             "subscribers": subscribers,
             "total_views": total_views,
             "video_count": video_count,
-            "error": "No recent videos found."
+            "average_engagement_rate_percent": None,
+            "best_upload_hour_utc": None,
+            "avg_days_between_uploads": None,
+            "recent_video_sample_size": 0,
+            "upload_hours_history": {},
+            "error": "No recent videos found to analyze engagement or upload patterns."
         }
 
     total_recent_views = 0
-    total_recent_likes = 0
-    total_recent_comments = 0
+    total_engagement = 0
     upload_hours = {}
     published_dates = []
 
-    for v in recent_videos:
-        v_stats = v.get("statistics", {})
-        views = int(v_stats.get("viewCount", 0))
-        likes = int(v_stats.get("likeCount", 0))
-        comments = int(v_stats.get("commentCount", 0))
+    # Process video data
+    for video in recent_videos:
+        try:
+            views, likes, comments, pub_date = _extract_video_stats(video)
+            total_recent_views += views
+            total_engagement += likes + comments
+            published_dates.append(pub_date)
+            
+            hour = pub_date.hour
+            if hour not in upload_hours:
+                upload_hours[hour] = []
+            upload_hours[hour].append(views)
+        except (KeyError, ValueError) as e:
+            logger.warning(f"Error processing video stats: {e}")
+            continue
 
-        total_recent_views += views
-        total_recent_likes += likes
-        total_recent_comments += comments
+    # Calculate metrics
+    engagement_rate = _calculate_engagement_rate(total_recent_views, total_engagement)
+    best_hour = _find_best_upload_hour(upload_hours)
+    avg_days_between = _calculate_posting_frequency(published_dates)
 
-        # Parse ISO 8601 date (e.g., 2024-04-16T15:30:00Z)
-        pub_str = v["snippet"]["publishedAt"]
-        dt = datetime.fromisoformat(pub_str.replace("Z", "+00:00"))
-        published_dates.append(dt)
-
-        hour = dt.hour
-        if hour not in upload_hours:
-            upload_hours[hour] = []
-        upload_hours[hour].append(views)
-
-    # Engagement Rate
-    if total_recent_views > 0:
-        overall_engagement = (
-            (total_recent_likes + total_recent_comments) / total_recent_views
-        ) * 100
-    else:
-        overall_engagement = 0.0
-
-    # Best upload time
-    best_hour = None
-    max_avg_views = -1
-    for hour, views_list in upload_hours.items():
-        avg_v = sum(views_list) / len(views_list)
-        if avg_v > max_avg_views:
-            max_avg_views = avg_v
-            best_hour = hour
-
-    # Posting frequency
-    avg_days_between_posts = None
-    if len(published_dates) > 1:
-        published_dates.sort(reverse=True)
-        date_diffs = [
-            (published_dates[i] - published_dates[i+1]).total_seconds() / 86400
-            for i in range(len(published_dates)-1)
-        ]
-        avg_days_between_posts = round(sum(date_diffs) / len(date_diffs), 1)
-
-    # Build upload hours history: {hour: avg_views}
-    upload_hours_history = {}
-    for hour, views_list in upload_hours.items():
-        upload_hours_history[hour] = round(sum(views_list) / len(views_list))
+    # Build upload hours history
+    upload_hours_history = {
+        hour: round(sum(views_list) / len(views_list))
+        for hour, views_list in upload_hours.items()
+    }
 
     return {
-        "channel_title": channel_data.get("snippet", {}).get("title"),
+        "channel_title": channel_title,
         "subscribers": subscribers,
         "total_views": total_views,
         "video_count": video_count,
-        "average_engagement_rate_percent": round(overall_engagement, 2),
+        "average_engagement_rate_percent": engagement_rate,
         "best_upload_hour_utc": best_hour,
-        "avg_days_between_uploads": avg_days_between_posts,
+        "avg_days_between_uploads": avg_days_between,
         "recent_video_sample_size": len(recent_videos),
         "upload_hours_history": upload_hours_history
     }

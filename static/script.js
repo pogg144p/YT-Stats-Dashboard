@@ -47,13 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
             content.querySelectorAll('.fhb-bar').forEach(b => b.classList.remove('fhb-bar--selected'));
             bar.classList.add('fhb-bar--selected');
 
-            const hour      = parseInt(bar.dataset.hour,      10);
-            const views     = parseInt(bar.dataset.views,     10);
+            const hour = parseInt(bar.dataset.hour, 10);
+            const views = parseInt(bar.dataset.views, 10);
             const bestHourD = bar.dataset.bestHour !== '' ? parseInt(bar.dataset.bestHour, 10) : null;
             const bestViews = parseInt(bar.dataset.bestViews, 10);
-            const maxViews  = parseInt(bar.dataset.maxViews,  10);
+            const maxViews = parseInt(bar.dataset.maxViews, 10);
 
-            const panel   = document.getElementById('fhb-detail-panel');
+            const panel = document.getElementById('fhb-detail-panel');
             panel.innerHTML = renderHourDetail(hour, views, bestHourD, bestViews, maxViews);
             panel.classList.add('fhb-detail-panel--visible');
         });
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function formatCompact(num) {
         if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
-        if (num >= 1_000)     return (num / 1_000).toFixed(1) + 'K';
+        if (num >= 1_000) return (num / 1_000).toFixed(1) + 'K';
         return String(Math.round(num));
     }
 
@@ -212,15 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const norm = {};
         Object.entries(hoursHistory).forEach(([h, v]) => { norm[parseInt(h, 10)] = v; });
 
-        const maxViews  = Math.max(...Object.values(norm), 1);
-        const CHART_H   = 150; // px
+        const maxViews = Math.max(...Object.values(norm), 1);
+        const CHART_H = 150; // px
 
         const bars = Array.from({ length: 24 }, (_, hour) => {
-            const views   = norm[hour] ?? 0;
-            const isBest  = hour === bestHour;
+            const views = norm[hour] ?? 0;
+            const isBest = hour === bestHour;
             const hasData = views > 0;
-            const hPx     = hasData ? Math.max(4, Math.round((views / maxViews) * CHART_H)) : 0;
-            const tip     = hasData
+            const hPx = hasData ? Math.max(4, Math.round((views / maxViews) * CHART_H)) : 0;
+            const tip = hasData
                 ? `${hour}:00 UTC — avg ${formatNumber(Math.round(views))} views`
                 : `${hour}:00 UTC — no uploads recorded`;
             return `<div class="fhb-bar${isBest ? ' fhb-bar--best' : ''}${!hasData ? ' fhb-bar--empty' : ''}"
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ).join('');
 
         const bestViews = bestHour != null ? (norm[bestHour] ?? 0) : 0;
-        const recorded  = Object.keys(norm).length;
+        const recorded = Object.keys(norm).length;
 
         return `
             <p class="fhb-subtitle">Average views per video by hour of upload (UTC)
@@ -262,8 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renders the clicked-bar detail panel content.
      */
     function renderHourDetail(hour, views, bestHour, bestViews, maxViews) {
-        const hasData   = views > 0;
-        const isBest    = hour === bestHour && bestViews > 0;
+        const hasData = views > 0;
+        const isBest = hour === bestHour && bestViews > 0;
         const pctOfBest = (bestViews > 0 && hasData) ? Math.round((views / bestViews) * 100) : 0;
 
         // Performance label
@@ -275,11 +275,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (pctOfBest >= 80) {
             perfLabel = '🔥 Excellent'; perfClass = 'excellent';
         } else if (pctOfBest >= 55) {
-            perfLabel = '✅ Good';      perfClass = 'good';
+            perfLabel = '✅ Good'; perfClass = 'good';
         } else if (pctOfBest >= 30) {
             perfLabel = '⚠️ Below Avg'; perfClass = 'below';
         } else {
-            perfLabel = '❌ Low';       perfClass = 'low';
+            perfLabel = '❌ Low'; perfClass = 'low';
         }
 
         // Recommendation tip
@@ -343,6 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="channel-header">
                 <h2>${insights.channel_title || 'Unknown Channel'}</h2>
             </div>
+            ${insights.error ? `
+            <div class="warning-notice">
+                <span class="icon">⚠️</span>
+                <span>${insights.error}</span>
+            </div>
+            ` : ''}
             <div class="results-grid">
                 ${createInsightCard('Subscribers', formatNumber(insights.subscribers))}
                 ${createInsightCard('Total Views', formatNumber(insights.total_views))}
@@ -384,6 +390,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="channel-header" style="margin-bottom: 1rem;">
                     <h3>${insights.channel_title || 'Unknown Channel'}</h3>
                 </div>
+                ${insights.error ? `
+                <div class="warning-notice" style="margin-bottom: 1rem; padding: 0.75rem;">
+                    <span class="icon" style="font-size: 1rem;">⚠️</span>
+                    <span style="font-size: 0.8rem;">Partial data: ${insights.error}</span>
+                </div>
+                ` : ''}
                 <div class="results-grid" style="display: flex; flex-direction: column;">
                     ${createInsightCard('Subscribers', formatNumber(insights.subscribers))}
                     ${createInsightCard('Engagement Rate', insights.average_engagement_rate_percent ? insights.average_engagement_rate_percent + '%' : '0%', true)}
