@@ -110,9 +110,9 @@ def fetch_recent_videos(uploads_playlist_id: str, max_results: int = 50):
         if not video_ids:
             return []
 
-        # Fetch video statistics
+        # Fetch video statistics + duration (needed for Shorts detection)
         videos_request = youtube.videos().list(
-            part="snippet,statistics",
+            part="snippet,statistics,contentDetails",
             id=",".join(video_ids)
         )
         videos_response = videos_request.execute()

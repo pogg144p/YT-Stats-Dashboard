@@ -5,11 +5,14 @@ from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import engine, Base, get_db
 from youtube_client import fetch_channel_data, fetch_recent_videos
 from services.processing import calculate_channel_metrics
+from services.auth import get_current_user, require_user
+from services import dynamo, chatbot
 import models
 
 # Configure logging
@@ -188,3 +191,85 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
+
+
+# ── Frontend Config ───────────────────────────────────────────────────────────
+
+@app.get("/config")
+def get_frontend_config():
+    """Return public frontend configuration (Cognito IDs, feature flags)."""
+    return {
+        "cognitoRegion":     os.environ.get("AWS_REGION", "us-east-1"),
+        "cognitoUserPoolId": os.environ.get("COGNITO_USER_POOL_ID", ""),
+        "cognitoClientId":   os.environ.get("COGNITO_CLIENT_ID", ""),
+        "cognitoDomain":     os.environ.get("COGNITO_DOMAIN", ""),
+        "features": {
+            "auth":   bool(os.environ.get("COGNITO_USER_POOL_ID")),
+            "chat":   bool(os.environ.get("GEMINI_API_KEY")),
+            "dynamo": bool(os.environ.get("AWS_ACCESS_KEY_ID")),
+        },
+    }
+
+
+# ── Chat Endpoints ────────────────────────────────────────────────────────────
+
+class ChatRequest(BaseModel):
+    message: str
+    channel_insights: dict | None = None  # optional channel data for AI context
+
+
+@app.post("/chat")
+def send_chat(
+    body: ChatRequest,
+    user: dict = Depends(require_user),
+):
+    """Send a message to the AI chatbot and persist the exchange."""
+    user_id = user["sub"]
+    history = dynamo.get_chat_history(user_id, limit=30)
+    reply = chatbot.chat(body.message, history, body.channel_insights)
+    dynamo.save_chat_message(user_id, "user", body.message)
+    dynamo.save_chat_message(user_id, "assistant", reply)
+    return {"reply": reply}
+
+
+@app.get("/chat/history")
+def get_chat_history_endpoint(user: dict = Depends(require_user)):
+    """Fetch the user's full chat history."""
+    user_id = user["sub"]
+    history = dynamo.get_chat_history(user_id, limit=50)
+    return {"history": history}
+
+
+# ── User Channel Endpoints ────────────────────────────────────────────────────
+
+@app.get("/user/channels")
+def get_saved_channels(user: dict = Depends(require_user)):
+    """Return channels saved by the logged-in user."""
+    return {"channels": dynamo.get_user_channels(user["sub"])}
+
+
+@app.post("/user/channels/{channel_id}")
+def save_channel(
+    channel_id: str,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_user),
+):
+    """Save an already-analyzed channel to the user's account."""
+    existing = db.query(models.Channel).filter(
+        models.Channel.youtube_id == channel_id
+    ).first()
+    if not existing or not existing.insights_cache:
+        raise HTTPException(status_code=404, detail="Channel not analyzed yet — search it first")
+    insights = json.loads(existing.insights_cache)
+    dynamo.save_user_channel(user["sub"], channel_id, existing.title or channel_id, insights)
+    return {"saved": True}
+
+
+@app.delete("/user/channels/{channel_id}")
+def remove_channel(
+    channel_id: str,
+    user: dict = Depends(require_user),
+):
+    """Remove a channel from the user's saved list."""
+    dynamo.delete_user_channel(user["sub"], channel_id)
+    return {"removed": True}

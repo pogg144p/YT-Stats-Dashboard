@@ -1,9 +1,36 @@
 """YouTube analytics processing and metrics calculation."""
+import re
 import logging
 from typing import List, Dict, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_duration_seconds(iso_duration: str) -> int:
+    """Parse ISO 8601 duration string (e.g. PT1M30S) to total seconds."""
+    pattern = re.compile(
+        r'PT(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+)S)?'
+    )
+    m = pattern.match(iso_duration or '')
+    if not m:
+        return 0
+    h = int(m.group('hours') or 0)
+    mins = int(m.group('minutes') or 0)
+    secs = int(m.group('seconds') or 0)
+    return h * 3600 + mins * 60 + secs
+
+
+def _is_short(video: dict) -> bool:
+    """Dual detection: duration ≤60s OR #shorts in title/description."""
+    # Method 1 — duration
+    iso = video.get('contentDetails', {}).get('duration', '')
+    if _parse_duration_seconds(iso) <= 60:
+        return True
+    # Method 2 — #shorts hashtag in title or description
+    snippet = video.get('snippet', {})
+    text = (snippet.get('title', '') + ' ' + snippet.get('description', '')).lower()
+    return '#shorts' in text
 
 
 def _extract_video_stats(video: dict) -> tuple[int, int, int, datetime]:
@@ -76,6 +103,9 @@ def calculate_channel_metrics(
             "subscribers": subscribers,
             "total_views": total_views,
             "video_count": video_count,
+            "shorts_count": 0,
+            "normal_video_count": 0,
+            "shorts_percentage": 0.0,
             "average_engagement_rate_percent": None,
             "best_upload_hour_utc": None,
             "avg_days_between_uploads": None,
@@ -88,6 +118,8 @@ def calculate_channel_metrics(
     total_engagement = 0
     upload_hours = {}
     published_dates = []
+    shorts_count = 0
+    normal_count = 0
 
     # Process video data
     for video in recent_videos:
@@ -96,7 +128,13 @@ def calculate_channel_metrics(
             total_recent_views += views
             total_engagement += likes + comments
             published_dates.append(pub_date)
-            
+
+            # Shorts classification
+            if _is_short(video):
+                shorts_count += 1
+            else:
+                normal_count += 1
+
             hour = pub_date.hour
             if hour not in upload_hours:
                 upload_hours[hour] = []
@@ -109,6 +147,8 @@ def calculate_channel_metrics(
     engagement_rate = _calculate_engagement_rate(total_recent_views, total_engagement)
     best_hour = _find_best_upload_hour(upload_hours)
     avg_days_between = _calculate_posting_frequency(published_dates)
+    sample_size = len(recent_videos)
+    shorts_pct = round((shorts_count / sample_size) * 100, 1) if sample_size else 0.0
 
     # Build upload hours history
     upload_hours_history = {
@@ -121,9 +161,12 @@ def calculate_channel_metrics(
         "subscribers": subscribers,
         "total_views": total_views,
         "video_count": video_count,
+        "shorts_count": shorts_count,
+        "normal_video_count": normal_count,
+        "shorts_percentage": shorts_pct,
         "average_engagement_rate_percent": engagement_rate,
         "best_upload_hour_utc": best_hour,
         "avg_days_between_uploads": avg_days_between,
-        "recent_video_sample_size": len(recent_videos),
+        "recent_video_sample_size": sample_size,
         "upload_hours_history": upload_hours_history
     }

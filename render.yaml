@@ -7,3 +7,16 @@ services:
     envVars:
       - key: YOUTUBE_API_KEY
         sync: false   # You will set this manually in the Render dashboard
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: COGNITO_USER_POOL_ID
+        sync: false
+      - key: COGNITO_CLIENT_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
