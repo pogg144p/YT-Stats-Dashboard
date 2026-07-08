@@ -13,26 +13,27 @@
     <div class="container">
 
         <!-- ── Header ──────────────────────────────────────────────── -->
-        <header>
-            <div class="header-inner">
-                <div class="header-text">
+        <header class="youtube-header">
+            <div class="header-brand">
+                <div class="brand-logo">▶</div>
+                <div>
                     <h1>YouTube Content Intelligence</h1>
-                    <p>Analyze and compare channels using advanced AI-driven metrics.</p>
+                    <p>Analyze channels, compare growth, and get smart creator insights.</p>
                 </div>
-                <div class="header-auth">
-                    <div id="auth-signed-out" class="auth-signed-out">
-                        <button class="btn-signin" id="open-auth-modal">Sign In</button>
-                    </div>
-                    <div id="auth-signed-in" class="auth-signed-in hidden">
-                        <button class="user-avatar-btn" id="user-menu-btn">
-                            <span id="user-initial">A</span>
-                        </button>
-                        <div class="user-dropdown hidden" id="user-dropdown">
-                            <div class="user-dropdown-name" id="user-dropdown-email"></div>
-                            <hr class="dropdown-divider">
-                            <button class="dropdown-item" id="view-saved-btn">📌 Saved Channels</button>
-                            <button class="dropdown-item dropdown-item--danger" id="signout-btn">Sign Out</button>
-                        </div>
+            </div>
+            <div class="header-auth">
+                <div id="auth-signed-out" class="auth-signed-out">
+                    <button class="btn-signin" id="open-auth-modal">Sign In</button>
+                </div>
+                <div id="auth-signed-in" class="auth-signed-in hidden">
+                    <button class="user-avatar-btn" id="user-menu-btn" aria-label="Open account menu">
+                        <span id="user-initial">A</span>
+                    </button>
+                    <div class="user-dropdown hidden" id="user-dropdown">
+                        <div class="user-dropdown-name" id="user-dropdown-email"></div>
+                        <hr class="dropdown-divider">
+                        <button class="dropdown-item" id="view-saved-btn">📌 Saved Channels</button>
+                        <button class="dropdown-item dropdown-item--danger" id="signout-btn">Sign Out</button>
                     </div>
                 </div>
             </div>
