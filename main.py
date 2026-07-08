@@ -2,11 +2,16 @@ import os
 import json
 import logging
 from datetime import datetime, timedelta, timezone
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 from database import engine, Base, get_db
 from youtube_client import fetch_channel_data, fetch_recent_videos
@@ -19,8 +24,11 @@ import models
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create all DB tables
-Base.metadata.create_all(bind=engine)
+# Create all DB tables when the database is reachable.
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as exc:
+    logger.warning("Database initialization skipped: %s", exc)
 
 app = FastAPI(
     title="YouTube Content Intelligence MVP",
@@ -32,7 +40,6 @@ app = FastAPI(
 )
 
 # Get the directory of the current script for absolute paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 # Constants

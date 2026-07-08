@@ -819,28 +819,21 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function appendMessage(role, content, timestamp = null) {
+    function appendMessage(role, content) {
         const welcome = chatMessages.querySelector('.chat-welcome');
         if (welcome) welcome.remove();
 
         const msgDiv = document.createElement('div');
         msgDiv.className = `chat-msg chat-msg--${role === 'user' ? 'user' : 'ai'}`;
-        
+
         // Simple HTML sanitizing/formatting for line breaks
         const formattedContent = content
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/\n/g, "<br>");
-            
-        // Use provided timestamp (ISO) if available, otherwise use now
-        const time = timestamp ? new Date(timestamp) : new Date();
-        const timeText = time.toLocaleString([], { hour: '2-digit', minute: '2-digit' });
 
-        msgDiv.innerHTML = `
-            <div>${formattedContent}</div>
-            <div class="chat-msg-time">${timeText}</div>
-        `;
+        msgDiv.innerHTML = `<div>${formattedContent}</div>`;
         chatMessages.appendChild(msgDiv);
         scrollToBottom();
     }
@@ -864,8 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text) return;
 
         chatInput.value = '';
-            const userTs = new Date().toISOString();
-            appendMessage('user', text, userTs);
+        appendMessage('user', text);
         showTypingIndicator();
 
         try {
@@ -882,7 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
-                appendMessage('assistant', data.reply, new Date().toISOString());
+                appendMessage('assistant', data.reply);
             } else {
                 if (res.status === 401) {
                     appendMessage('assistant', "🔒 Chat history is saved to accounts. Please sign in to message the AI.");
@@ -912,8 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.history && data.history.length > 0) {
                     chatMessages.innerHTML = ''; // clear welcome
                     data.history.forEach(msg => {
-                        // messages from backend include `timestamp` in ISO format
-                        appendMessage(msg.role, msg.content, msg.timestamp || null);
+                        appendMessage(msg.role, msg.content);
                     });
                 }
             }

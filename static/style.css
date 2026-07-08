@@ -1,12 +1,12 @@
 :root {
-    --bg-color: #0b0f19;
-    --text-primary: #f0f4f8;
-    --text-secondary: #94a3b8;
-    /* use a stronger red accent for a YouTube-like feel */
-    --accent-red: #ff0000;
-    --accent-purple: #7c3aed;
-    --glass-bg: rgba(30, 41, 59, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --bg-color: #06070d;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --accent-red: #ff2d20;
+    --accent-orange: #ff7a00;
+    --accent-purple: #8b5cf6;
+    --glass-bg: rgba(15, 23, 42, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.12);
 }
 
 * {
@@ -17,7 +17,8 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: var(--bg-color);
+    background: radial-gradient(circle at top left, rgba(255, 45, 32, 0.18), transparent 24%),
+                linear-gradient(135deg, #06070d 0%, #111827 45%, #030712 100%);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -78,12 +79,12 @@ header p {
 
 .glass-panel {
     background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(255, 45, 32, 0.22);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
 }
 
 .search-section {
@@ -125,16 +126,17 @@ header p {
     padding: 1rem;
     border-radius: 8px;
     border: none;
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-red));
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
     color: white;
     font-family: inherit;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 10px 25px rgba(255, 45, 32, 0.25);
 }
 
 .btn-primary:hover {
@@ -177,7 +179,7 @@ header p {
 
 .insight-card {
     background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(255, 45, 32, 0.18);
     border-radius: 12px;
     padding: 1.5rem;
     text-align: left;
@@ -1146,11 +1148,11 @@ header p {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-red));
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
     border: none;
     color: white;
     cursor: pointer;
-    box-shadow: 0 5px 25px rgba(255, 51, 102, 0.4);
+    box-shadow: 0 8px 28px rgba(255, 45, 32, 0.35);
     z-index: 999;
     display: flex;
     align-items: center;
@@ -1171,7 +1173,7 @@ header p {
     width: 380px;
     height: 550px;
     background: rgba(15, 23, 42, 0.95);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(255, 45, 32, 0.25);
     border-radius: 16px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     z-index: 1000;
@@ -1288,7 +1290,7 @@ header p {
 }
 .chat-msg--user {
     align-self: flex-end;
-    background: linear-gradient(135deg, var(--accent-purple), rgba(124, 58, 237, 0.8));
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
     color: white;
     border-bottom-right-radius: 2px;
 }
