@@ -20,6 +20,11 @@ def _is_configured() -> bool:
     return bool(os.environ.get("GEMINI_API_KEY", ""))
 
 
+def _get_model_name() -> str:
+    model_name = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash").strip()
+    return model_name or "gemini-2.0-flash"
+
+
 def _get_client():
     """Lazy-init the Gemini client (new google-genai SDK)."""
     global _client
@@ -98,7 +103,7 @@ def chat(
         )
 
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model=_get_model_name(),
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
@@ -108,4 +113,9 @@ def chat(
 
     except Exception as e:
         logger.error(f"Gemini chat error: {e}")
+        if "404" in str(e) or "NOT_FOUND" in str(e):
+            return (
+                "⚠️ The configured Gemini model is unavailable on this server. "
+                "Please try again shortly or set GEMINI_MODEL to a supported model."
+            )
         return "Sorry, I ran into a problem. Please try again in a moment."
