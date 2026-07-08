@@ -11,4 +11,4 @@ requests==2.33.1
 starlette==1.0.0
 python-jose[cryptography]==3.3.0
 boto3==1.34.162
-google-generativeai==0.8.3
+google-genai==1.16.0

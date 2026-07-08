@@ -1,4 +1,4 @@
-"""Gemini AI chatbot — persistent multi-turn conversations."""
+"""Gemini AI chatbot — persistent multi-turn conversations (google-genai SDK)."""
 import os
 import logging
 
@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
-_model = None
+_client = None
 
 SYSTEM_PROMPT = (
     "You are an expert YouTube channel analyst and growth advisor. "
@@ -21,17 +21,13 @@ def _is_configured() -> bool:
     return bool(GEMINI_API_KEY)
 
 
-def _get_model():
-    """Lazy-init the Gemini model."""
-    global _model
-    if not _model:
-        import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY)
-        _model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=SYSTEM_PROMPT,
-        )
-    return _model
+def _get_client():
+    """Lazy-init the Gemini client (new google-genai SDK)."""
+    global _client
+    if not _client:
+        from google import genai
+        _client = genai.Client(api_key=GEMINI_API_KEY)
+    return _client
 
 
 def _format_channel_context(insights: dict) -> str:
@@ -74,21 +70,40 @@ def chat(
             "Please add a GEMINI_API_KEY to the Render environment variables."
         )
     try:
-        model = _get_model()
+        from google.genai import types
 
-        # Build Gemini-format history from stored messages
-        gemini_history = [
-            {"role": "user" if m["role"] == "user" else "model",
-             "parts": [m["content"]]}
-            for m in history
-        ]
+        client = _get_client()
+
+        # Build contents list from stored history
+        contents = []
+        for m in history:
+            role = "user" if m["role"] == "user" else "model"
+            contents.append(
+                types.Content(
+                    role=role,
+                    parts=[types.Part(text=m["content"])]
+                )
+            )
 
         # Augment the user's message with channel context if available
         context = _format_channel_context(channel_insights or {})
         full_message = f"{context}\n\n{user_message}" if context else user_message
 
-        chat_session = model.start_chat(history=gemini_history)
-        response = chat_session.send_message(full_message)
+        # Append current user message
+        contents.append(
+            types.Content(
+                role="user",
+                parts=[types.Part(text=full_message)]
+            )
+        )
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+            ),
+        )
         return response.text
 
     except Exception as e:
