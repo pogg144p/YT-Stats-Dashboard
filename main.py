@@ -37,7 +37,8 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 # Constants
 CACHE_DURATION_HOURS = 24
-MAX_RECENT_VIDEOS = 50
+# Set to `None` to fetch the full uploads playlist (paginated). Change via env if desired.
+MAX_RECENT_VIDEOS = None
 
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

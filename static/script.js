@@ -267,14 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Social Provider Google redirect
     const handleGoogleOAuth = () => {
         if (cognitoConfig && cognitoConfig.cognitoDomain) {
-            const domain = cognitoConfig.cognitoDomain;
+            // cognitoDomain is the full base URL e.g. https://xxx.auth.us-west-2.amazoncognito.com
+            const domain = cognitoConfig.cognitoDomain.replace(/\/$/, ''); // strip trailing slash
             const clientId = cognitoConfig.cognitoClientId;
-            const region = cognitoConfig.cognitoRegion;
             const redirectUri = window.location.origin + '/';
-            const url = `https://${domain}.auth.${region}.amazoncognito.com/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&client_id=${clientId}&scope=email+openid+profile`;
+            // Basic validation to surface common misconfigurations
+            if (!domain.includes('.auth.') || !domain.includes('amazoncognito.com')) {
+                alert('COGNITO_DOMAIN appears misconfigured. Please set the full Cognito domain (e.g. https://your-domain.auth.us-west-2.amazoncognito.com) in environment variables.');
+                return;
+            }
+            const url = `${domain}/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&client_id=${clientId}&scope=email+openid+profile`;
             window.location.href = url;
         } else {
-            alert("Google Sign-In requires COGNITO_DOMAIN configured in Render environment variables.");
+            alert("Google Sign-In requires COGNITO_DOMAIN configured in environment variables.");
         }
     };
     document.getElementById('google-login-btn').addEventListener('click', handleGoogleOAuth);
@@ -677,8 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createInsightCard('Subscribers', formatNumber(insights.subscribers))}
                 ${createInsightCard('Total Views', formatNumber(insights.total_views))}
                 ${createInsightCard('Video Count (Total)', formatNumber(insights.video_count))}
-                ${createInsightCard('Shorts (Sample of 50)', `${insights.shorts_count || 0} (${insights.shorts_percentage || 0}%)`)}
-                ${createInsightCard('Videos (Sample of 50)', `${insights.normal_video_count || 0} (${normalPct}%)`)}
+                ${createInsightCard(`Shorts (Sample of ${sampleSize})`, `${insights.shorts_count || 0} (${insights.shorts_percentage || 0}%)`)}
+                ${createInsightCard(`Videos (Sample of ${sampleSize})`, `${insights.normal_video_count || 0} (${normalPct}%)`)}
                 ${createInsightCard('Engagement Rate', insights.average_engagement_rate_percent ? insights.average_engagement_rate_percent + '%' : '0%', true)}
                 <div class="insight-card card-upload-hours"
                      role="button" tabindex="0"
@@ -729,8 +734,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="results-grid" style="display: flex; flex-direction: column;">
                     ${createInsightCard('Subscribers', formatNumber(insights.subscribers))}
                     ${createInsightCard('Engagement Rate', insights.average_engagement_rate_percent ? insights.average_engagement_rate_percent + '%' : '0%', true)}
-                    ${createInsightCard('Shorts (Sample of 50)', `${insights.shorts_count || 0} (${insights.shorts_percentage || 0}%)`)}
-                    ${createInsightCard('Videos (Sample of 50)', `${insights.normal_video_count || 0} (${normalPct}%)`)}
+                    ${createInsightCard(`Shorts (Sample of ${sampleSize})`, `${insights.shorts_count || 0} (${insights.shorts_percentage || 0}%)`)}
+                    ${createInsightCard(`Videos (Sample of ${sampleSize})`, `${insights.normal_video_count || 0} (${normalPct}%)`)}
                     <div class="insight-card card-upload-hours"
                          role="button" tabindex="0"
                          title="Click to view full upload hour chart"
@@ -814,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function appendMessage(role, content) {
+    function appendMessage(role, content, timestamp = null) {
         const welcome = chatMessages.querySelector('.chat-welcome');
         if (welcome) welcome.remove();
 
@@ -828,9 +833,13 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/>/g, "&gt;")
             .replace(/\n/g, "<br>");
             
+        // Use provided timestamp (ISO) if available, otherwise use now
+        const time = timestamp ? new Date(timestamp) : new Date();
+        const timeText = time.toLocaleString([], { hour: '2-digit', minute: '2-digit' });
+
         msgDiv.innerHTML = `
             <div>${formattedContent}</div>
-            <div class="chat-msg-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            <div class="chat-msg-time">${timeText}</div>
         `;
         chatMessages.appendChild(msgDiv);
         scrollToBottom();
@@ -855,7 +864,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text) return;
 
         chatInput.value = '';
-        appendMessage('user', text);
+            const userTs = new Date().toISOString();
+            appendMessage('user', text, userTs);
         showTypingIndicator();
 
         try {
@@ -872,7 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
-                appendMessage('assistant', data.reply);
+                appendMessage('assistant', data.reply, new Date().toISOString());
             } else {
                 if (res.status === 401) {
                     appendMessage('assistant', "🔒 Chat history is saved to accounts. Please sign in to message the AI.");
@@ -902,7 +912,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.history && data.history.length > 0) {
                     chatMessages.innerHTML = ''; // clear welcome
                     data.history.forEach(msg => {
-                        appendMessage(msg.role, msg.content);
+                        // messages from backend include `timestamp` in ISO format
+                        appendMessage(msg.role, msg.content, msg.timestamp || null);
                     });
                 }
             }

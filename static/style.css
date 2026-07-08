@@ -2,7 +2,8 @@
     --bg-color: #0b0f19;
     --text-primary: #f0f4f8;
     --text-secondary: #94a3b8;
-    --accent-red: #ff3366;
+    /* use a stronger red accent for a YouTube-like feel */
+    --accent-red: #ff0000;
     --accent-purple: #7c3aed;
     --glass-bg: rgba(30, 41, 59, 0.4);
     --glass-border: rgba(255, 255, 255, 0.08);
@@ -56,17 +57,18 @@ body {
 }
 
 header {
-    text-align: center;
-    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
 }
 
 h1 {
-    font-size: 3rem;
+    font-size: 2.4rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #f0f4f8, var(--text-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
+    color: #fff;
+    margin-bottom: 0.25rem;
 }
 
 header p {

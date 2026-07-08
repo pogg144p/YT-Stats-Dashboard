@@ -4,8 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-
+GEMINI_API_KEY = ""
 _client = None
 
 SYSTEM_PROMPT = (
@@ -18,7 +17,7 @@ SYSTEM_PROMPT = (
 
 
 def _is_configured() -> bool:
-    return bool(GEMINI_API_KEY)
+    return bool(os.environ.get("GEMINI_API_KEY", ""))
 
 
 def _get_client():
@@ -26,7 +25,8 @@ def _get_client():
     global _client
     if not _client:
         from google import genai
-        _client = genai.Client(api_key=GEMINI_API_KEY)
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        _client = genai.Client(api_key=api_key)
     return _client
 
 
