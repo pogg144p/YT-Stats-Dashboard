@@ -2,9 +2,12 @@
     --bg-color: #06070d;
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
-    --accent-red: #ff2d20;
-    --accent-orange: #ff7a00;
-    --accent-purple: #8b5cf6;
+    --accent-red: #ff0000;
+    --accent-white: #ffffff;
+    --accent-black: #000000;
+    /* keep legacy names mapped to red/black so existing rules adapt */
+    --accent-orange: var(--accent-black);
+    --accent-purple: var(--accent-red);
     --glass-bg: rgba(15, 23, 42, 0.78);
     --glass-border: rgba(255, 255, 255, 0.12);
 }
@@ -85,11 +88,11 @@ header {
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
-    color: white;
+    background: linear-gradient(135deg, var(--accent-red), rgba(0,0,0,0.9));
+    color: var(--accent-white);
     font-size: 1.2rem;
     font-weight: 800;
-    box-shadow: 0 8px 20px rgba(255, 45, 32, 0.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
 }
 
 h1 {
@@ -192,7 +195,7 @@ header p {
     padding: 0.95rem 1rem;
     border-radius: 999px;
     border: none;
-    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    background: linear-gradient(135deg, var(--accent-red), rgba(0,0,0,0.85));
     color: white;
     font-family: inherit;
     font-size: 1.02rem;
@@ -826,7 +829,7 @@ header p {
     position: relative;
 }
 .btn-signin {
-    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    background: linear-gradient(135deg, var(--accent-red), rgba(0,0,0,0.85));
     border: none;
     color: white;
     padding: 0.7rem 1.2rem;
@@ -847,7 +850,7 @@ header p {
     height: 42px;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.18);
-    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    background: linear-gradient(135deg, var(--accent-red), rgba(0,0,0,0.85));
     color: white;
     font-weight: 700;
     font-size: 1.05rem;
